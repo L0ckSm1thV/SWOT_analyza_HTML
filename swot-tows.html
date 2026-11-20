@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:">
+<meta name="referrer" content="no-referrer">
+<title>SWOT Analýza</title>
+<style>
+:root{
+  --bg:#f6f6f3;--card:#fff;--ink:#1d1d1b;--mute:#6b6b66;--line:#e2e1dc;--acc:#2f5d50;
+  --S:#2e7d4f;--W:#c26a1b;--O:#2a62a8;--T:#b23a3a;
+  --Sbg:#e7f3ec;--Wbg:#fbefe3;--Obg:#e6eef8;--Tbg:#f8e6e6;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#151614;--card:#1f201d;--ink:#ecebe6;--mute:#9a9992;--line:#34352f;--acc:#7cc1a8;
+  --S:#6cc795;--W:#e8a25c;--O:#7aa9e6;--T:#e67b7b;
+  --Sbg:#1d2e24;--Wbg:#33271b;--Obg:#1c2634;--Tbg:#332020;
+}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 12px 0}
+.title{display:flex;gap:8px;align-items:center}
+.title select{flex:1;min-width:0;border:1px solid var(--line);border-radius:9px;padding:8px;background:var(--card);color:var(--ink);font:600 14px inherit}
+.title+.title{margin-top:6px}
+.title input{flex:1;font:600 17px/1.3 inherit;border:0;background:transparent;color:var(--ink);padding:4px 0;outline:none;border-bottom:1px dashed transparent}
+.title input:focus{border-bottom-color:var(--line)}
+nav{display:flex;gap:2px;overflow-x:auto;margin-top:6px}
+nav button{flex:1;min-width:max-content;border:0;background:none;color:var(--mute);padding:10px 10px;font:600 13px inherit;border-bottom:3px solid transparent;cursor:pointer}
+nav button.on{color:var(--ink);border-bottom-color:var(--acc)}
+main{padding:12px;max-width:1000px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+.grid4{display:grid;gap:12px}
+@media(min-width:760px){.grid4{grid-template-columns:1fr 1fr}}
+h2{font-size:15px;margin:0 0 2px;display:flex;align-items:center;gap:8px}
+h2 .tag{font:700 12px/1 inherit;padding:4px 7px;border-radius:6px;color:#fff}
+.sub{color:var(--mute);font-size:12.5px;margin:0 0 10px}
+.f{display:flex;gap:6px;align-items:flex-start;margin-bottom:6px}
+.f .code{font:700 12px/1 ui-monospace,monospace;min-width:26px;padding-top:10px}
+.f textarea{flex:1;resize:vertical;min-height:38px;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;background:var(--bg);color:var(--ink)}
+.f select{border:1px solid var(--line);border-radius:8px;padding:8px 4px;background:var(--bg);color:var(--ink);font:inherit}
+.x{border:0;background:none;color:var(--mute);font-size:18px;padding:6px 4px;cursor:pointer}
+.add{border:1px dashed var(--line);background:none;color:var(--mute);width:100%;padding:9px;border-radius:8px;font:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 13px;border-radius:9px;font:600 13.5px inherit;cursor:pointer}
+.btn.pri{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.m{border-collapse:separate;border-spacing:3px}
+table.m th{font:700 12px ui-monospace,monospace;padding:4px;color:var(--mute)}
+table.m td.c button{width:40px;height:40px;border-radius:7px;border:1px solid var(--line);font:700 14px inherit;cursor:pointer;color:var(--ink);background:var(--card)}
+table.m td.gap,table.m th.gap{width:6px;padding:0}
+.legend{font-size:12.5px;color:var(--mute);columns:2 220px;margin-top:8px}
+.legend div{break-inside:avoid;margin-bottom:3px}
+.totals{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tot{border-radius:10px;padding:10px;border:1px solid var(--line)}
+.tot b{font-size:20px;display:block}
+.tot.best{outline:2px solid var(--acc)}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--acc)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--mute);border-radius:999px;padding:4px 9px;font:600 12px inherit;cursor:pointer}
+.chip.on{color:#fff}
+.strat{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
+.hint{font-size:12.5px;color:var(--mute);margin:4px 0 8px}
+pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;font:12.5px/1.5 ui-monospace,monospace;max-height:55vh;overflow:auto}
+textarea.io{width:100%;min-height:120px;border:1px solid var(--line);border-radius:8px;padding:8px;font:12px ui-monospace,monospace;background:var(--bg);color:var(--ink)}
+.note{font-size:12px;color:var(--mute)}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:20;padding:20px}
+.modal.show{display:flex}
+.modal .card{max-width:360px;width:100%}
+.ph{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:18px 2px 8px}
+.m2{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:stretch}
+.m2 .ax{font-size:11px;color:var(--mute);display:flex;align-items:center;justify-content:center;text-align:center}
+.m2 .ax.v{writing-mode:vertical-rl;transform:rotate(180deg)}
+.m2 .q{border:1px solid var(--line);border-radius:9px;padding:8px;min-height:70px;background:var(--bg)}
+.m2 .q.hot{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,var(--bg))}
+.m2 .q b{display:block;font-size:11.5px;margin-bottom:5px}
+.cd{display:inline-block;font:700 11.5px ui-monospace,monospace;padding:2px 6px;border-radius:5px;color:#fff;margin:0 3px 3px 0}
+.inp{border:1px solid var(--line);border-radius:8px;padding:7px;background:var(--bg);color:var(--ink);font:inherit}
+.sw{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sw>div{border-radius:10px;padding:10px;border:1px solid var(--line);font-size:13px}
+.sw ul{margin:4px 0 0;padding-left:18px}
+details.ref{margin:4px 0 8px}
+details.ref summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--mute);padding:4px 0}
+.ref li{margin-bottom:3px}
+.help h3{font-size:14px;margin:14px 0 4px}
+.help p,.help li{font-size:13.5px}
+.help ul{padding-left:18px;margin:4px 0}
+#printv{display:none}
+@media print{body>*:not(#printv){display:none!important}#printv{display:block;color:#000;background:#fff;font:10.5pt/1.4 Calibri,Arial,sans-serif}
+#printv h1{font-size:20pt;color:#2f5d50}#printv h2{font-size:14pt;color:#2f5d50;border-bottom:1px solid #2f5d50;margin-top:18pt;break-after:avoid}#printv h3{font-size:12pt;break-after:avoid}
+#printv table{border-collapse:collapse;width:100%;margin:6pt 0;break-inside:auto}#printv th,#printv td{border:1px solid #bbb;padding:3pt 5pt;text-align:left;vertical-align:top}#printv th{background:#e7eeea}#printv tr{break-inside:avoid}#printv .li{margin:2pt 0 2pt 12pt}
+@page{size:A4;margin:18mm}}
+.empty{color:var(--mute);font-size:13px;padding:8px 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="title"><select id="pick" aria-label="Uložené analýzy"></select><button class="btn" id="newA">+ Nová</button></div>
+  <div class="title"><span class="note">Název:</span><input id="title" placeholder="Pojmenuj analýzu" aria-label="Název analýzy"><button class="btn" id="helpB" title="Nápověda k SWOT analýze" style="padding:7px 11px;white-space:nowrap">? Nápověda</button></div>
+  <nav id="tabs">
+    <button data-t="z">Zadání</button>
+    <button data-t="p">PESTLE</button>
+    <button data-t="f">SWOT</button>
+    <button data-t="m">IFE / EFE</button>
+    <button data-t="s">Strategie</button>
+    <button data-t="o">Výstup</button>
+  </nav>
+</header>
+<main id="main"></main>
+<footer style="text-align:center;font-size:10.5px;color:var(--mute);opacity:.55;padding:18px 0 22px;letter-spacing:.04em">Created by L0cksm1thV · 2026</footer>
+<div id="printv"></div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="card"><p id="mtext"></p><div class="row" style="justify-content:flex-end"><button class="btn" id="mno">Zrušit</button><button class="btn pri" id="myes">Ano</button></div></div></div>
+
+<script>
+(function(){
+"use strict";
+var KEY="swot-tows-v1",LKEY="swot-tows-lib-v1";
+var Q={
+  S:{name:"Silné stránky",sub:"Interní – vlastní schopnosti, výcvik, vybavení, lidé, velení"},
+  W:{name:"Slabé stránky",sub:"Interní – nedostatky ve schopnostech, mezery, omezení"},
+  O:{name:"Příležitosti",sub:"Externí – vývoj situace, spojenci, nové technologie, zdroje"},
+  T:{name:"Hrozby",sub:"Externí – protivník, hybridní hrozby, rizika prostředí"}
+};
+var ST={
+  SO:{a:"S",b:"O",name:"SO · Maxi-Maxi",desc:"Silné stránky využít k chopení se příležitostí (aktivní/ofenzivní přístup)."},
+  ST:{a:"S",b:"T",name:"ST · Maxi-Mini",desc:"Silné stránky využít k odvrácení hrozeb (odstrašení, odvracení hrozeb)."},
+  WO:{a:"W",b:"O",name:"WO · Mini-Maxi",desc:"Příležitosti využít k odstranění slabin (rozvoj a doplnění schopností)."},
+  WT:{a:"W",b:"T",name:"WT · Mini-Mini",desc:"Omezit slabiny a vyhnout se hrozbám (defenzivní přístup, ochrana)."}
+};
+var PC={
+  P:{l:"P",name:"Politické",sub:"Politická situace, mandát, spojenci, geopolitika"},
+  Ec:{l:"E",name:"Ekonomické",sub:"Rozpočet obrany, financování, zdroje, dodávky"},
+  So:{l:"S",name:"Sociální",sub:"Veřejné mínění, nábor, morálka, demografie, dezinformace"},
+  Te:{l:"T",name:"Technologické",sub:"Kybernetika, drony, komunikace, EW, nové technologie"},
+  L:{l:"L",name:"Legislativní",sub:"Zákony, mandát, mezinárodní právo, pravidla nasazení"},
+  En:{l:"E",name:"Environmentální",sub:"Terén, počasí, klima, infrastruktura, prostředí nasazení"},
+  MP:{l:"P",name:"Politické",sub:"Vláda, mandát, spojenci, politická stabilita, klíčoví aktéři"},
+  MM:{l:"M",name:"Vojenské",sub:"Vlastní, spojenecké a protivníkovy síly, schopnosti, rozmístění"},
+  ME:{l:"E",name:"Ekonomické",sub:"Ekonomika, rozpočet, zdroje, logistika, sankce"},
+  MS:{l:"S",name:"Sociální",sub:"Obyvatelstvo, demografie, kultura, náboženství, veřejné mínění"},
+  MI:{l:"I",name:"Informační",sub:"Média, informační prostředí, dezinformace, kyberprostor"},
+  MN:{l:"I",name:"Infrastruktura",sub:"Doprava, energetika, komunikace, kritická infrastruktura"},
+  MF:{l:"PE",name:"Fyzické prostředí",sub:"Terén, počasí, klima, přírodní podmínky"},
+  MT:{l:"T",name:"Čas",sub:"Časové faktory, termíny, tempo, sezónnost, délka trvání"}
+};
+var FWK={pestle:{name:"PESTLE",title:"PESTLE – makroprostředí",k:["P","Ec","So","Te","L","En"]},pmesii:{name:"PMESII-PT",title:"PMESII-PT – operační prostředí",k:["MP","MM","ME","MS","MI","MN","MF","MT"]}};
+var ALLK=Object.keys(PC);
+function PKm(){return FWK[D.env==="pmesii"?"pmesii":"pestle"].k;}
+function FWn(){return FWK[D.env==="pmesii"?"pmesii":"pestle"];}
+var tab="z";
+function blank(){var o={thr:{imp:3,prob:50},goals:{general:"",items:[]},checks:{},title:"",topic:"",goal:"",situation:"",info:[],created:Date.now(),pestle:{},env:"pestle",scale:5,factors:{S:[],W:[],O:[],T:[]},scores:{},strategies:{SO:[],ST:[],WO:[],WT:[]}};ALLK.forEach(function(k){o.pestle[k]=[];});return o;}
+var LIB=null;
+try{var lr=localStorage.getItem(LKEY);if(lr){LIB=JSON.parse(lr);if(!LIB||!LIB.items||!LIB.items[LIB.cur])LIB=null;}}catch(e){}
+if(!LIB){var first=blank();try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);if(p&&p.factors)first=fix(p);}}catch(e){}
+  if(!first.title)first.title="Analýza "+today();var fid=uid();LIB={cur:fid,items:{}};LIB.items[fid]=first;}
+var D=fix(LIB.items[LIB.cur]);
+function today(){var d=new Date();return d.getDate()+". "+(d.getMonth()+1)+". "+d.getFullYear();}
+try{if(location.hash&&/^#[zpfmsoh]$/.test(location.hash))tab=location.hash.slice(1);}catch(e){}
+
+function inv(v){var a=String(v||"").split(/[\s;,]+/).map(parseFloat).filter(function(x){return x>=1&&x<=5;});return a.map(function(x){return String(Math.round((6-x)*100)/100);}).join(" ");}
+function fix(p){var b=blank();b.title=p.title||"";b.goal=String(p.goal||"");b.topic=String(p.topic||"");b.situation=String(p.situation||"");b.info=(p.info||[]).map(function(x){return{id:x.id||uid(),text:String(x.text||""),src:String(x.src||""),done:!!x.done};});b.created=p.created||Date.now();b.updated=p.updated||b.created;["S","W","O","T"].forEach(function(k){b.factors[k]=(p.factors[k]||[]).map(function(f){var w=+f.w||3;return{id:f.id||uid(),text:String(f.text||""),why:String(f.why||""),
+    perf:+f.perf||(k==="S"?Math.max(3,w):k==="W"?Math.min(3,6-w):3),rat:f.rat!==undefined?(p.scale===5?String(f.rat):inv(f.rat)):(f.w?String(w):""),resp:+f.resp||2,prob:f.prob!==undefined?+f.prob:50,key:(f.key===true||f.key===false)?f.key:null,src:f.src||null};});});
+  var th=p.thr||{};b.thr={imp:th.imp?(p.scale===5?+th.imp:6-th.imp):3,prob:th.prob!==undefined?+th.prob:50};var g=p.goals||{};b.goals={general:String(g.general||""),items:(g.items||[]).map(function(x){return{id:x.id||uid(),text:String(x.text||""),ind:String(x.ind||""),val:String(x.val||""),term:String(x.term||""),tasks:String(x.tasks||"")};})};b.checks=p.checks||{};
+  b.env=p.env==="pmesii"?"pmesii":"pestle";
+  ALLK.forEach(function(k){b.pestle[k]=((p.pestle||{})[k]||[]).map(function(f){return{id:f.id||uid(),text:String(f.text||""),imp:+f.imp||3,prob:+f.prob||3,dir:f.dir||"",lnk:f.lnk||null};});});
+  b.scores=p.scores||{};["SO","ST","WO","WT"].forEach(function(k){b.strategies[k]=((p.strategies||{})[k]||[]).map(function(s){return{id:s.id||uid(),text:String(s.text||""),links:s.links||[]};});});return b;}
+function uid(){return Math.random().toString(36).slice(2,9);}
+function save(){D.updated=Date.now();LIB.items[LIB.cur]=D;try{localStorage.setItem(LKEY,JSON.stringify(LIB));}catch(e){}}
+function renderPick(){var ids=Object.keys(LIB.items).sort(function(a,b){return (LIB.items[b].updated||0)-(LIB.items[a].updated||0);});
+  document.getElementById("pick").innerHTML=ids.map(function(id){return '<option value="'+id+'"'+(id===LIB.cur?' selected':'')+'>'+esc(LIB.items[id].title||"Bez názvu")+'</option>';}).join("");}
+function openA(id){LIB.cur=id;D=fix(LIB.items[id]);save();renderPick();render();}
+function newA(src,name){var n=src?fix(JSON.parse(JSON.stringify(src))):blank();n.created=Date.now();n.title=name||n.title||("Analýza "+today());var id=uid();LIB.items[id]=n;openA(id);return id;}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function code(k,i){return k+(i+1);}
+function find(id){for(var k in D.factors){var a=D.factors[k];for(var i=0;i<a.length;i++)if(a[i].id===id)return{k:k,i:i,f:a[i]};}return null;}
+function sc(a,b){return +D.scores[a+"|"+b]||0;}
+function toast(t){var el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(function(){el.classList.remove("show");},1600);}
+function ask(t,cb){var m=document.getElementById("modal");document.getElementById("mtext").textContent=t;m.classList.add("show");
+  document.getElementById("myes").onclick=function(){m.classList.remove("show");cb();};document.getElementById("mno").onclick=function(){m.classList.remove("show");};}
+
+function quad(k){var s=ST[k],A=keys(s.a),B=keys(s.b),raw=0,wt=0,max=0,pairs=[];
+  A.forEach(function(a){B.forEach(function(b){var v=sc(a.f.id,b.f.id),ww=fwt(s.a,a.f)*fwt(s.b,b.f);raw+=v;wt+=v*ww;max+=3*ww;if(v)pairs.push({a:a.c,b:b.c,v:v,w:v*ww});});});
+  pairs.sort(function(x,y){return y.w-x.w;});return{raw:raw,wt:Math.round(wt*10)/10,max:max,pct:max?Math.round(wt/max*100):0,pairs:pairs};}
+
+/* ---------- render ---------- */
+function render(){
+  var tp=document.querySelector('#tabs [data-t="p"]');if(tp)tp.textContent=FWn().name;
+  document.getElementById("title").value=D.title;renderPick();
+  [].forEach.call(document.querySelectorAll("#tabs button"),function(b){b.classList.toggle("on",b.dataset.t===tab);});
+  var h="";
+  if(tab==="h")h=rH();else if(tab==="z")h=rZ();else if(tab==="p")h=rP();else if(tab==="f")h=rF();else if(tab==="m")h=rM();else if(tab==="s")h=rS();else h=rO();
+  document.getElementById("main").innerHTML=h;
+}
+function pcode(k,i){return {P:"P",Ec:"Ek",So:"S",Te:"T",L:"L",En:"En",MP:"P",MM:"M",ME:"E",MS:"S",MI:"I",MN:"IN",MF:"PE",MT:"T"}[k]+(i+1);}
+function pfind(id){for(var k in D.pestle){var a=D.pestle[k];for(var i=0;i<a.length;i++)if(a[i].id===id)return{k:k,i:i,f:a[i]};}return null;}
+function pw(f){return Math.max(1,Math.min(5,Math.round(f.imp*f.prob/5)));}
+var INFOSUG=["Zpravodajské hodnocení situace","Protivník / aktéři hrozeb","Vlastní schopnosti a kapacity","Rozpočet a zdroje","Legislativa a mandát","Spojenci a spolupráce","Terén a prostředí","Technologie a komunikace","Poučení z minulých operací a cvičení"];
+function rZ(){var done=D.info.filter(function(x){return x.done;}).length;
+  var h='<div class="card"><h2>Téma analýzy</h2><p class="sub">Co analyzuješ – jednotku, schopnost, operaci, prostor, rozhodnutí…</p><div class="f"><textarea rows="1" data-zf="topic" placeholder="např. Ochrana kritické infrastruktury v regionu X">'+esc(D.topic)+'</textarea></div></div>'+
+  '<div class="card"><h2>Cíl analýzy</h2><p class="sub">Co má analýza rozhodnout nebo podpořit; rozsah a časový horizont.</p><div class="f"><textarea rows="2" data-zf="goal" placeholder="např. Určit priority rozvoje schopností do 03/2027">'+esc(D.goal)+'</textarea></div></div>'+
+  '<div class="card"><h2>Výchozí situace</h2><p class="sub">Současný stav, kontext, známá fakta a omezení.</p><div class="f"><textarea rows="4" data-zf="situation" placeholder="Kde jsme teď, co víme, co nás omezuje">'+esc(D.situation)+'</textarea></div></div>'+
+  '<div class="card"><h2>Potřebné informace</h2><p class="sub">Co je potřeba zjistit před analýzou a odkud. Získáno: <b>'+done+' / '+D.info.length+'</b></p>';
+  D.info.forEach(function(x){h+='<div class="strat"><div class="f"><input type="checkbox" data-ichk="'+x.id+'"'+(x.done?' checked':'')+' style="width:20px;height:20px;margin-top:9px" aria-label="Získáno"><textarea rows="1" data-it="'+x.id+'" placeholder="Jaká informace"'+(x.done?' style="text-decoration:line-through;opacity:.7"':'')+'>'+esc(x.text)+'</textarea><button class="x" data-idel="'+x.id+'" aria-label="Smazat">×</button></div><div class="f" style="padding-left:26px"><textarea rows="1" data-is="'+x.id+'" placeholder="Zdroj / kdo / termín" style="font-size:13px">'+esc(x.src)+'</textarea></div></div>';});
+  h+='<button class="add" data-iadd="1" style="margin-top:8px">+ přidat informaci</button>';
+  var have=D.info.map(function(x){return x.text;});var sug=INFOSUG.filter(function(t){return have.indexOf(t)<0;});
+  if(sug.length)h+='<p class="hint" style="margin-top:10px">Návrhy (ťukni pro přidání):</p><div class="chips">'+sug.map(function(t){return '<button class="chip" data-isug="'+esc(t)+'">+ '+esc(t)+'</button>';}).join("")+'</div>';
+  return h+'</div><div class="row"><button class="btn pri" data-goto="p">Pokračovat na '+FWn().name+' →</button></div>';}
+function goalCard(){return '<div class="card"><h2>🎯 Cíl analýzy</h2><p class="sub">Co má analýza rozhodnout nebo podpořit? </p><div class="f"><textarea rows="2" data-goal="1" placeholder="Cíl, rozsah, časový horizont">'+esc(D.goal)+'</textarea></div></div>';}
+function goalNote(){return (D.topic.trim()||D.goal.trim())?'<div class="card" style="border-left:4px solid var(--acc)">'+(D.topic.trim()?'<span class="note">Téma</span><div style="margin-bottom:6px">'+esc(D.topic)+'</div>':'')+(D.goal.trim()?'<span class="note">Cíl analýzy</span><div>'+esc(D.goal)+'</div>':'')+'</div>':'<div class="card note">Tip: doplň téma a cíl v záložce Zadání – strategie by k nim měly směřovat.</div>';}
+function rP(){var fw=FWn(),h='<div class="card"><div class="row" style="margin-bottom:8px"><span class="note">Rámec:</span>'+["pestle","pmesii"].map(function(x){var on=(D.env||"pestle")===x;return '<button class="chip'+(on?' on':'')+'" style="'+(on?'background:var(--acc);border-color:var(--acc)':'')+'" data-env="'+x+'">'+FWK[x].name+'</button>';}).join("")+'</div><h2>'+fw.title+'</h2><p class="sub">Externí vlivy. U každého určíš dopad a pravděpodobnost (1–5, 5 = nejvyšší) a zda jde o příležitost (O) nebo hrozbu (T). Pak je přeneseš do SWOT: atraktivita/závažnost = dopad, pravděpodobnost 1–5 → 10–90 %. Data obou rámců zůstávají uložena.</p><div class="row"><button class="btn pri" data-pall="1">Přenést vše označené do SWOT</button></div></div><div class="grid4">';
+  PKm().forEach(function(k){h+='<div class="card"><h2><span class="tag" style="background:var(--acc);color:var(--bg)">'+PC[k].l+'</span>'+PC[k].name+'</h2><p class="sub">'+PC[k].sub+'</p>';
+    D.pestle[k].forEach(function(f,i){var x=f.lnk?find(f.lnk):null;
+      h+='<div class="strat"><div class="f"><span class="code">'+pcode(k,i)+'</span><textarea rows="1" data-pt="'+f.id+'" placeholder="Popis vlivu">'+esc(f.text)+'</textarea><button class="x" data-pdel="'+f.id+'" aria-label="Smazat">×</button></div><div class="row" style="font-size:12.5px;color:var(--mute)">'+
+        'Dopad '+sel("pi",f.id,f.imp)+' Pravd. '+sel("pp",f.id,f.prob)+' <b style="color:var(--ink)">'+(f.imp*f.prob)+'</b>'+
+        '<select data-pd="'+f.id+'"><option value="">– směr –</option><option value="O"'+(f.dir==="O"?" selected":"")+'>Příležitost O</option><option value="T"'+(f.dir==="T"?" selected":"")+'>Hrozba T</option><option value="N"'+(f.dir==="N"?" selected":"")+'>Neutrální</option></select>'+
+        ((f.dir==="O"||f.dir==="T")?'<button class="chip'+(x?' on':'')+'" style="'+(x?'background:var(--'+x.k+');border-color:var(--'+x.k+')':'')+'" data-pto="'+f.id+'">'+(x?code(x.k,x.i)+' ↻':'→ SWOT')+'</button>':'')+
+        '</div></div>';});
+    h+='<button class="add" data-padd="'+k+'" style="margin-top:8px">+ přidat vliv</button></div>';});
+  return h+'</div><p class="note">↻ = faktor už je ve SWOT; ťuknutím ho aktualizuješ (text, váha, O/T).</p>';}
+function sel(a,id,v){var h='<select data-'+a+'="'+id+'">';for(var i=1;i<=5;i++)h+='<option'+(v===i?' selected':'')+'>'+i+'</option>';return h+'</select>';}
+function toSwot(f){if(f.dir!=="O"&&f.dir!=="T")return false;var x=f.lnk?find(f.lnk):null;
+  var rt=String(f.imp),pr=[0,10,30,50,70,90][f.prob]||50;
+  if(x){x.f.text=f.text;x.f.rat=rt;x.f.prob=pr;if(x.k!==f.dir){D.factors[x.k].splice(x.i,1);D.factors[f.dir].push(x.f);}}
+  else{var n=newF(f.dir);n.text=f.text;n.rat=rt;n.prob=pr;n.src=f.id;D.factors[f.dir].push(n);f.lnk=n.id;}return true;}
+var PERF=["","velmi slabá","slabá","standardní","silná","velmi silná"];
+function newF(k){return{id:uid(),text:"",why:"",perf:k==="S"?4:k==="W"?2:3,rat:"",prob:50,resp:2,key:null,src:null};}
+function nums(v){return String(v||"").split(/[\s;,]+/).map(function(x){return parseFloat(x);}).filter(function(x){return x>=1&&x<=5;});}
+function avgR(f){var a=nums(f.rat);return a.length?a.reduce(function(t,x){return t+x;},0)/a.length:null;}
+function intl(k){return k==="S"||k==="W";}
+function hiImp(f){var a=avgR(f);return a!==null&&a>=D.thr.imp;}
+function hiProb(f){return (+f.prob||0)>=D.thr.prob;}
+function autoKey(k,f){if(k==="S")return f.perf===5||(f.perf>=4&&hiImp(f));if(k==="W")return f.perf<=2&&hiImp(f);return hiImp(f)&&hiProb(f);}
+function isKey(k,f){return f.key===true||(f.key!==false&&autoKey(k,f));}
+function keys(k){var r=[];D.factors[k].forEach(function(f,i){if(isKey(k,f))r.push({f:f,c:code(k,i),k:k});});return r;}
+function fwt(k,f){var a=avgR(f);a=a===null?3:a;var w=6-a;return intl(k)?w:w*(+f.prob||0)/100;}
+function r2(x){return (Math.round(x*100)/100).toFixed(2);}
+function avgTxt(f){var a=nums(f.rat);return a.length?'Ø <b>'+r2(avgR(f))+'</b>'+(a.length>1?' ('+a.length+' hodn.)':''):'';}
+function cd(k,c,t){return '<span class="cd" style="background:var(--'+k+')" title="'+esc(t||"")+'">'+c+'</span>';}
+function srcTag(f){var y=f.src?pfind(f.src):null;return y?'<br><span style="font-weight:400;font-size:10px;color:var(--mute)">'+pcode(y.k,y.i)+'</span>':'';}
+function block(k){var I=intl(k),h='<div class="card"><h2><span class="tag" style="background:var(--'+k+')">'+k+'</span>'+Q[k].name+'</h2><p class="sub">'+Q[k].sub+'</p>';
+  D.factors[k].forEach(function(f,i){var kk=isKey(k,f),au=(f.key!==true&&f.key!==false);
+    h+='<div class="strat"><div class="f"><span class="code" style="color:var(--'+k+')">'+code(k,i)+srcTag(f)+'</span><textarea rows="1" data-ft="'+f.id+'" placeholder="Faktor">'+esc(f.text)+'</textarea><button class="x" data-fdel="'+f.id+'" aria-label="Smazat">×</button></div>';
+    h+='<div class="f" style="padding-left:32px"><textarea rows="1" data-fwhy="'+f.id+'" style="font-size:13px" placeholder="'+(I?'Proč je to '+(k==="S"?'silná':'slabá')+' stránka':'Dopad, pokud nastane')+'">'+esc(f.why)+'</textarea></div>';
+    h+='<div class="row" style="padding-left:32px;font-size:12.5px;color:var(--mute)">';
+    if(I){h+='Výkon <select class="inp" data-fperf="'+f.id+'">';for(var v=5;v>=1;v--)h+='<option value="'+v+'"'+(f.perf===v?' selected':'')+'>'+PERF[v]+'</option>';h+='</select>';}
+    h+='<span>'+(I?'Důležitost':(k==="O"?'Atraktivita':'Závažnost'))+' <input class="inp" data-frat="'+f.id+'" value="'+esc(f.rat)+'" placeholder="1–5" inputmode="decimal" style="width:84px"> <span id="avg-'+f.id+'">'+avgTxt(f)+'</span></span>';
+    if(!I){h+='<span>Pravděp. <input class="inp" type="number" min="0" max="100" step="5" data-fprob="'+f.id+'" value="'+(+f.prob||0)+'" style="width:66px"> %</span>';
+      h+='<span title="EFE: jak účinně organizace na faktor reaguje">Reakce <select class="inp" data-fresp="'+f.id+'">'+[[4,"4 výborná"],[3,"3 nadprůměrná"],[2,"2 průměrná"],[1,"1 slabá"]].map(function(o){return '<option value="'+o[0]+'"'+(f.resp===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join("")+'</select></span>';}
+    h+='<button class="chip'+(kk?' on':'')+'" style="'+(kk?'background:var(--'+k+');border-color:var(--'+k+')':'')+'" data-fkey="'+f.id+'" title="Zařazení do SWOT matice: auto → ano → ne">'+(au?'auto · ':'')+(kk?'v matici':'mimo matici')+'</button></div></div>';});
+  return h+'<button class="add" data-fadd="'+k+'" style="margin-top:8px">+ přidat faktor</button></div>';}
+function mat2(title,sub,yl,xl,cells){var h='<div class="card"><h2>'+title+'</h2><p class="sub">'+sub+'</p><div class="m2">';
+  h+='<div class="ax v">'+yl[0]+'</div>'+qd(cells[0])+qd(cells[1])+'<div class="ax v">'+yl[1]+'</div>'+qd(cells[2])+qd(cells[3])+'<div></div><div class="ax">'+xl[0]+'</div><div class="ax">'+xl[1]+'</div></div>';
+  function qd(c){return '<div class="q'+(c.hot?' hot':'')+'"><b>'+c.l+'</b>'+(c.it.join("")||'<span class="note">—</span>')+'</div>';}
+  return h+'</div>';}
+function pim(){var c=[{l:"Soustředit úsilí (posílit)",it:[],hot:1},{l:"Udržet dobrou práci",it:[]},{l:"Nízká priorita",it:[]},{l:"Možný přebytek zdrojů",it:[]}],un=[];
+  ["S","W"].forEach(function(k){D.factors[k].forEach(function(f,i){var t=cd(k,code(k,i),f.text);if(avgR(f)===null){un.push(t);return;}var hi=hiImp(f),hp=f.perf>=4;c[(hi?0:2)+(hp?1:0)].it.push(t);});});
+  return mat2("Matice výkon – důležitost (1G)","Vysoký výkon = silná / velmi silná. Vysoká důležitost = Ø ≥ "+D.thr.imp+"."+(un.length?' Bez hodnocení důležitosti: '+un.join(""):''),["Vysoká důležitost","Nízká důležitost"],["Nízký výkon","Vysoký výkon"],c);}
+function apm(k){var O=k==="O",c=O?[{l:"Sledovat",it:[]},{l:"Klíčové – využít",it:[],hot:1},{l:"Okrajové",it:[]},{l:"Zvážit",it:[]}]:[{l:"Připravit opatření",it:[]},{l:"Vážné – reagovat",it:[],hot:1},{l:"Okrajové",it:[]},{l:"Sledovat",it:[]}],un=[];
+  D.factors[k].forEach(function(f,i){var t=cd(k,code(k,i),f.text);if(avgR(f)===null){un.push(t);return;}c[(hiImp(f)?0:2)+(hiProb(f)?1:0)].it.push(t);});
+  var n=O?"atraktivita":"závažnost";
+  return mat2("Matice "+n+" – pravděpodobnost ("+(O?"příležitosti":"hrozby")+")","Vysoká "+n+" = Ø ≥ "+D.thr.imp+", vysoká pravděpodobnost ≥ "+D.thr.prob+" %."+(un.length?' Bez hodnocení: '+un.join(""):''),["Vysoká "+n,"Nízká "+n],["Nízká pravděp.","Vysoká pravděp."],c);}
+function smat(){var L={S:"Velmi silné silné stránky",W:"Významné slabé stránky",O:"Hlavní příležitosti",T:"Vážné hrozby"};var h='<div class="card"><h2>SWOT matice (3A–3B)</h2><p class="sub">Zařazeno automaticky podle hodnocení (S: velmi silná, nebo silná + důležitá; W: slabá + důležitá; O/T: vysoká atraktivita/závažnost + vysoká pravděpodobnost). Ručně změníš tlačítkem u faktoru.</p><div class="sw">';
+  ["S","W","O","T"].forEach(function(k){var a=keys(k);h+='<div style="background:var(--'+k+'bg)"><b style="color:var(--'+k+')">'+L[k]+'</b><ul>'+(a.map(function(x){return '<li><b>'+x.c+'</b> '+esc(x.f.text||"—")+'</li>';}).join("")||'<li class="note">—</li>')+'</ul></div>';});
+  return h+'</div></div>';}
+function rF(){var h='<div class="card"><h2>SWOT</h2><p class="sub">Fáze 1 interní faktory, fáze 2 externí faktory, fáze 3 SWOT matice. Stupnice důležitosti, atraktivity a závažnosti: <b>5 = nejvyšší, 1 = nejnižší</b>. Hodnocení více expertů napiš za sebe oddělená mezerou (např. 4 5 3 4) – počítá se průměr.</p>'+
+    '<div class="row note">Práh „vysoká“ důležitost/atraktivita/závažnost: Ø ≥ <input class="inp" type="number" step="0.1" min="1" max="5" data-thr="imp" value="'+D.thr.imp+'" style="width:64px"> · vysoká pravděpodobnost ≥ <input class="inp" type="number" step="5" min="0" max="100" data-thr="prob" value="'+D.thr.prob+'" style="width:64px"> %</div></div>';
+  h+='<h3 class="ph">Fáze 1 – interní faktory</h3><div class="grid4">'+block("S")+block("W")+'</div>'+pim();
+  h+='<h3 class="ph">Fáze 2 – externí faktory</h3><div class="grid4">'+block("O")+block("T")+'</div><div class="grid4">'+apm("O")+apm("T")+'</div>';
+  h+='<h3 class="ph">Fáze 3 – SWOT matice</h3>'+smat();
+  return h+'<p class="note">Vše se ukládá jen v tomto prohlížeči, nic se neodesílá.</p>';}
+function ifeR(k,f){if(k==="S")return f.perf>=5?4:3;if(k==="W")return f.perf<=1?1:2;return +f.resp||2;}
+function feSet(ks){var rows=[];ks.forEach(function(k){var a=keys(k);if(!a.length)a=D.factors[k].map(function(f,i){return{f:f,c:code(k,i),k:k};});a.forEach(function(x){x.k=k;rows.push(x);});});
+  var tw=0;rows.forEach(function(x){var v=avgR(x.f);x.raw=v===null?3:v;tw+=x.raw;});
+  var tot=0;rows.forEach(function(x){x.w=tw?x.raw/tw:0;x.r=ifeR(x.k,x.f);x.s=x.w*x.r;tot+=x.s;});return{rows:rows,total:tot};}
+function band(v){return v>=3?0:v>=2?1:2;}
+var IEC=["I","II","III","IV","V","VI","VII","VIII","IX"];
+function iePost(c){return [0,1,3].indexOf(c)>=0?{n:"Rozvíjet a posilovat",d:"Silná nebo průměrná interní pozice v příznivém prostředí – investovat do rozvoje schopností, aktivně využívat příležitosti."}:[2,4,6].indexOf(c)>=0?{n:"Udržovat a stabilizovat",d:"Udržet dosažené schopnosti, cíleně odstraňovat slabiny, zajistit odolnost vůči hrozbám."}:{n:"Omezit a přehodnotit",d:"Slabá pozice v náročném prostředí – přehodnotit priority, přesunout zdroje, minimalizovat expozici hrozbám."};}
+function feTable(t,title,note){var h='<div class="card"><h2>'+title+'</h2><p class="sub">'+note+'</p><div class="tablewrap"><table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="color:var(--mute);text-align:left"><th style="padding:4px">Kód</th><th>Faktor</th><th style="text-align:right">Váha</th><th style="text-align:right">Hodn.</th><th style="text-align:right;padding-right:4px">Skóre</th></tr>';
+  t.rows.forEach(function(x){h+='<tr style="border-top:1px solid var(--line)"><td style="padding:5px 4px"><span class="cd" style="background:var(--'+x.k+')">'+x.c+'</span></td><td>'+esc(x.f.text||"—")+'</td><td style="text-align:right">'+r2(x.w)+'</td><td style="text-align:right">'+x.r+'</td><td style="text-align:right;padding-right:4px">'+r2(x.s)+'</td></tr>';});
+  h+='<tr style="border-top:2px solid var(--ink);font-weight:700"><td colspan="2" style="padding:6px 4px">Celkem</td><td style="text-align:right">1.00</td><td></td><td style="text-align:right;padding-right:4px">'+r2(t.total)+'</td></tr></table></div></div>';return h;}
+function rRes(){var I=feSet(["S","W"]),E=feSet(["O","T"]);
+  if(!I.rows.length||!E.rows.length)return '<div class="card"><h2>Hodnocení výsledku – IFE / EFE</h2><p class="empty">Vyplň ve SWOT aspoň jeden interní (S/W) a jeden externí (O/T) faktor.</p></div>';
+  var c=band(E.total)*3+band(I.total),P=iePost(c);
+  var h='<div class="card"><h2>Hodnocení výsledku – IFE / EFE</h2><p class="sub">Počítá se z faktorů ve SWOT matici (není-li v bloku žádný, ze všech). Váha = důležitost (u O/T atraktivita/závažnost) normalizovaná na součet 1,00. Celkové skóre 1,0–4,0; průměr 2,5.</p><div class="totals">'+
+    '<div class="tot"><span class="sub" style="margin:0">IFE – interní faktory</span><b>'+r2(I.total)+'</b><span class="note">'+(I.total>=2.5?'nadprůměrná interní pozice':'podprůměrná interní pozice')+'</span><div class="bar"><i style="width:'+((I.total-1)/3*100)+'%"></i></div></div>'+
+    '<div class="tot"><span class="sub" style="margin:0">EFE – externí faktory</span><b>'+r2(E.total)+'</b><span class="note">'+(E.total>=2.5?'reakce na prostředí nadprůměrná':'reakce na prostředí podprůměrná')+'</span><div class="bar"><i style="width:'+((E.total-1)/3*100)+'%"></i></div></div></div>';
+  h+='<h3 class="ph" style="margin-top:14px">Matice IE</h3><div class="m2" style="grid-template-columns:auto 1fr 1fr 1fr">';
+  var rl=["Vysoké EFE 3,0–4,0","Střední EFE 2,0–2,99","Nízké EFE 1,0–1,99"],cl=["Silné IFE 3,0–4,0","Průměrné IFE 2,0–2,99","Slabé IFE 1,0–1,99"];
+  for(var y=0;y<3;y++){h+='<div class="ax v">'+rl[y]+'</div>';for(var x=0;x<3;x++){var n=y*3+x,pp=iePost(n);h+='<div class="q'+(n===c?' hot':'')+'" style="min-height:58px;text-align:center"><b>'+IEC[n]+'</b><span class="note">'+pp.n+'</span>'+(n===c?'<div style="font-size:18px;color:var(--acc)">●</div>':'')+'</div>';}}
+  h+='<div></div>'+cl.map(function(t){return '<div class="ax">'+t+'</div>';}).join("")+'</div>';
+  h+='<p class="hint" style="font-size:14px;color:var(--ink);margin-top:12px"><b>Pozice: buňka '+IEC[c]+' – '+P.n+'</b><br>'+P.d+'</p>';
+  h+='<p class="note">Hodnocení IFE: silná stránka 4 = velmi silná, 3 = ostatní; slabá stránka 1 = velmi slabá, 2 = ostatní. EFE: hodnocení reakce organizace 1–4 (nastavíš u faktoru ve SWOT).</p></div>';
+  h+=feTable(I,"Matice IFE","Interní faktory – silné a slabé stránky.")+feTable(E,"Matice EFE","Externí faktory – příležitosti a hrozby.");
+  return h;}
+function rM(){return rRes();}
+function refPanel(a,b){var h='<details class="ref" open><summary>Podklady: '+Q[a].name+' + '+Q[b].name+'</summary><div class="sw">';
+  [a,b].forEach(function(k){var ks=keys(k);h+='<div style="background:var(--'+k+'bg)"><b style="color:var(--'+k+')">'+Q[k].name+'</b><ul>';
+    if(!ks.length)h+='<li class="note">Žádný faktor ve SWOT matici</li>';
+    ks.forEach(function(x){var f=x.f,av=avgR(f),meta=intl(k)?PERF[f.perf]+(av!==null?', důl. '+r2(av):''):(av!==null?(k==="O"?'atr. ':'záv. ')+r2(av)+', ':'')+(+f.prob||0)+' %';
+      h+='<li><b>'+x.c+'</b> '+esc(f.text||"—")+' <span class="note">('+meta+')</span>'+(f.why.trim()?'<br><span class="note">'+esc(f.why)+'</span>':'')+'</li>';});
+    h+='</ul></div>';});
+  return h+'</div></details>';}
+function rH(){var L=function(u){return '<a href="'+u+'" target="_blank" rel="noopener noreferrer" style="color:var(--acc);word-break:break-all">'+u+'</a>';};
+  return '<div class="card help"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Nápověda – SWOT analýza</h2><button class="btn" data-goto="z">← Zpět</button></div>'+
+  '<h3>Postup</h3><ul>'+
+  '<li><b>Zadání</b> – téma, cíl analýzy, výchozí situace a seznam potřebných informací (co zjistit, odkud, kdo).</li>'+
+  '<li><b>PESTLE / PMESII-PT</b> – vnější vlivy. Rámec přepneš nahoře v záložce; data obou rámců zůstávají uložena. Každý vliv ohodnoť dopadem a pravděpodobností 1–5 (5 = nejvyšší), urči směr O/T a přenes do SWOT [1, 6, 7, 8].</li>'+
+  '<li><b>SWOT – fáze 1</b> – silné a slabé stránky: zdůvodnění, výkon (velmi silná … velmi slabá) a důležitost [1].</li>'+
+  '<li><b>SWOT – fáze 2</b> – příležitosti a hrozby: dopad, atraktivita / závažnost, pravděpodobnost 0–100 % a reakce organizace 1–4 (pro EFE) [1, 3].</li>'+
+  '<li><b>SWOT – fáze 3</b> – do SWOT matice se zařadí velmi silné silné stránky, významné slabé stránky, hlavní příležitosti a vážné hrozby; zařazení lze ručně přepnout [1].</li>'+
+  '<li><b>IFE / EFE</b> – hodnocení výsledku: matice IFE, EFE a z nich matice IE [3].</li>'+
+  '<li><b>Strategie</b> – opatření pro kvadranty TOWS (SO, ST, WO, WT) [2]; obecný a specifické cíle s ukazatelem, cílovou hodnotou a termínem; kontrola cílů vůči analýze [1].</li>'+
+  '<li><b>Výstup</b> – report v Markdownu, záloha / import JSON, správa analýz.</li></ul>'+
+  '<h3>PMESII-PT</h3><p>Proměnné operačního prostředí: Political (politické), Military (vojenské), Economic (ekonomické), Social (sociální), Information (informační), Infrastructure (infrastruktura), Physical environment (fyzické prostředí), Time (čas) [7, 8].</p>'+
+  '<h3>Stupnice</h3><ul><li>Důležitost, atraktivita, závažnost: <b>5 = nejvyšší, 1 = nejnižší</b>. Více hodnotitelů odděl mezerou (např. 4 5 3 4) – počítá se průměr [1].</li>'+
+  '<li>Výkon: velmi silná, silná, standardní (průměrný výkon), slabá, velmi slabá [1].</li><li>Prahy „vysoké“ hodnoty nastavíš v záložce SWOT (výchozí Ø ≥ 3, pravděpodobnost ≥ 50 %).</li></ul>'+
+  '<h3>Matice ve SWOT</h3><ul><li><b>Výkon – důležitost:</b> soustředit úsilí (důležité, nízký výkon), udržet dobrou práci, nízká priorita, možný přebytek zdrojů [1, 4].</li>'+
+  '<li><b>Atraktivita / závažnost – pravděpodobnost:</b> vysoko–vysoko = klíčové příležitosti / vážné hrozby [1, 5].</li></ul>'+
+  '<h3>IFE / EFE a matice IE</h3><ul><li><b>Váha</b> = důležitost (u O/T atraktivita/závažnost) normalizovaná tak, aby součet vah interních i externích faktorů byl 1,00.</li>'+
+  '<li><b>Hodnocení IFE:</b> silná stránka 4 (velmi silná) nebo 3; slabá stránka 1 (velmi slabá) nebo 2. <b>EFE:</b> reakce organizace 1 = slabá … 4 = výborná.</li>'+
+  '<li><b>Skóre</b> = Σ váha × hodnocení, rozsah 1,0–4,0, průměr 2,5.</li>'+
+  '<li><b>Matice IE</b> (3 × 3): buňky I, II, IV = rozvíjet a posilovat; III, V, VII = udržovat a stabilizovat; VI, VIII, IX = omezit a přehodnotit [3]. Popisy pozic jsou upraveny pro bezpečnostní prostředí.</li></ul>'+
+  '<h3>Strategie TOWS</h3><ul>'+["SO","ST","WO","WT"].map(function(k){return '<li><b>'+ST[k].name+'</b> – '+esc(ST[k].desc)+'</li>';}).join("")+'</ul>'+
+  '<h3>Data a bezpečnost</h3><p>Vše se ukládá jen v tomto prohlížeči, nic se neodesílá. Pro citlivé údaje používej offline soubor; utajované informace patří jen do schválených systémů.</p>'+
+  '<h3>Citace</h3><ol style="padding-left:20px;font-size:13px">'+
+  '<li>GRASSEOVÁ, Monika. Využití SWOT analýzy pro dlouhodobé plánování. <i>Obrana a strategie</i>. 2006, č. 2, s. 48–55. '+L("https://mocr.mo.gov.cz/mo/obrana_a_strategie/2-2006cz/grasseova.pdf")+'</li>'+
+  '<li>WEIHRICH, Heinz. The TOWS Matrix – A Tool for Situational Analysis. <i>Long Range Planning</i>. 1982, 15(2), s. 54–66.</li>'+
+  '<li>DAVID, Fred R. a DAVID, Forest R. <i>Strategic Management: A Competitive Advantage Approach, Concepts and Cases</i>. 16. vyd. Pearson, 2017. (matice IFE, EFE, IE)</li>'+
+  '<li>MARTILLA, John A. a JAMES, John C. Importance-Performance Analysis. <i>Journal of Marketing</i>. 1977, 41(1), s. 77–79.</li>'+
+  '<li>KOTLER, Philip a KELLER, Kevin L. <i>Marketing Management</i>. Pearson. (matice příležitostí a hrozeb)</li>'+
+  '<li>AGUILAR, Francis J. <i>Scanning the Business Environment</i>. New York: Macmillan, 1967. (východisko analýzy PEST)</li>'+
+  '<li>HEADQUARTERS, DEPARTMENT OF THE ARMY. <i>ATP 2-01.3 Intelligence Preparation of the Battlefield</i>. Washington, 2019. (PMESII-PT)</li>'+
+  '<li>NATO. <i>AJP-5 Allied Joint Doctrine for the Planning of Operations</i>. NATO Standardization Office. (PMESII)</li></ol>'+
+  '<p class="note">Bibliografické údaje před použitím ve formálním dokumentu ověř (vydání, rok).</p></div>';}
+function rGoals(){var G=D.goals,h='<h3 class="ph">Cíle a opatření</h3><div class="card"><h2>Obecný a specifické cíle</h2><p class="sub">Obecný cíl → specifické cíle s ukazatelem, cílovou hodnotou a termínem → úkoly (opatření).</p><div class="f"><textarea rows="2" data-gg="1" placeholder="Obecný cíl">'+esc(G.general)+'</textarea></div>';
+  G.items.forEach(function(g,i){h+='<div class="strat"><div class="f"><span class="code">C'+(i+1)+'</span><textarea rows="2" data-gi="'+g.id+'|text" placeholder="Specifický cíl">'+esc(g.text)+'</textarea><button class="x" data-gdel="'+g.id+'">×</button></div>'+
+    '<div class="row" style="padding-left:32px"><input class="inp" data-gi="'+g.id+'|ind" value="'+esc(g.ind)+'" placeholder="Ukazatel" style="flex:2;min-width:120px"><input class="inp" data-gi="'+g.id+'|val" value="'+esc(g.val)+'" placeholder="Cílová hodnota" style="flex:1;min-width:90px"><input class="inp" data-gi="'+g.id+'|term" value="'+esc(g.term)+'" placeholder="Termín" style="flex:1;min-width:80px"></div>'+
+    '<div class="f" style="padding-left:32px;margin-top:6px"><textarea rows="2" data-gi="'+g.id+'|tasks" placeholder="Úkoly / opatření" style="font-size:13px">'+esc(g.tasks)+'</textarea></div></div>';});
+  h+='<button class="add" data-gadd="1" style="margin-top:8px">+ přidat specifický cíl</button></div>';
+  h+='<div class="card"><h2>Kontrola cílů vůči analýze</h2>'+CHK.map(function(q){return '<label class="row" style="padding:6px 0;cursor:pointer"><input type="checkbox" data-chk="'+q[0]+'"'+(D.checks[q[0]]?' checked':'')+' style="width:20px;height:20px"> '+q[1]+'</label>';}).join("")+'</div>';
+  return h;}
+var CHK=[["S","Využívají cíle silné stránky?"],["W","Odstraňují slabé stránky?"],["O","Využívají příležitosti?"],["T","Reagují na hrozby?"]];
+function rS(){var h=goalNote();
+  ["SO","ST","WO","WT"].forEach(function(k){var s=ST[k];
+    h+='<div class="card"><h2><span class="tag" style="background:var(--'+s.a+')">'+s.a+'</span><span class="tag" style="background:var(--'+s.b+')">'+s.b+'</span>'+s.name+'</h2><p class="sub">'+s.desc+'</p>';
+    h+=refPanel(s.a,s.b);
+    D.strategies[k].forEach(function(st){h+='<div class="strat"><div class="f"><textarea rows="2" data-st="'+k+'|'+st.id+'" placeholder="Popis strategie / opatření">'+esc(st.text)+'</textarea><button class="x" data-sdel="'+k+'|'+st.id+'">×</button></div><div class="chips">';
+      [s.a,s.b].forEach(function(q){D.factors[q].forEach(function(f,i){var on=st.links.indexOf(f.id)>=0;if(!on&&!isKey(q,f))return;
+        h+='<button class="chip'+(on?' on':'')+'" style="'+(on?'background:var(--'+q+');border-color:var(--'+q+')':'')+'" data-link="'+k+'|'+st.id+'|'+f.id+'" title="'+esc(f.text)+'">'+code(q,i)+'</button>';});});
+      h+='</div></div>';});
+    h+='<button class="add" data-sadd="'+k+'">+ přidat strategii</button></div>';});
+  return h+rGoals();}
+function md(){var L=[];L.push("# "+(D.title||"PESTLE / SWOT / TOWS analýza"));L.push("");L.push("_Vytvořeno: "+new Date(D.created).toLocaleDateString("cs-CZ")+" · upraveno: "+new Date(D.updated||D.created).toLocaleDateString("cs-CZ")+"_");L.push("");L.push("## Zadání");if(D.topic.trim()){L.push("");L.push("**Téma:** "+D.topic.trim().replace(/\n+/g," "));}
+  if(D.goal.trim()){L.push("");L.push("**Cíl analýzy:** "+D.goal.trim().replace(/\n+/g," "));}
+  if(D.situation.trim()){L.push("");L.push("**Výchozí situace:**");L.push("");L.push(D.situation.trim());}
+  if(D.info.length){L.push("");L.push("**Potřebné informace:**");L.push("");D.info.forEach(function(x){L.push("- ["+(x.done?"x":" ")+"] "+(x.text||"—")+(x.src.trim()?" — _"+x.src.trim()+"_":""));});}["pestle","pmesii"].forEach(function(fw){var pr=[];FWK[fw].k.forEach(function(k){D.pestle[k].forEach(function(f,i){pr.push({c:pcode(k,i),n:PC[k].name,f:f});});});
+  if(pr.length){pr.sort(function(a,b){return b.f.imp*b.f.prob-a.f.imp*a.f.prob;});L.push("");L.push("## "+FWK[fw].name);L.push("");L.push("| Kód | Oblast | Vliv | Dopad | Pravd. | Skóre | Směr |");L.push("|---|---|---|---|---|---|---|");
+    pr.forEach(function(r){L.push("| "+r.c+" | "+r.n+" | "+(r.f.text||"—").replace(/\|/g,"/").replace(/\n/g," ")+" | "+r.f.imp+" | "+r.f.prob+" | "+(r.f.imp*r.f.prob)+" | "+({O:"Příležitost",T:"Hrozba",N:"Neutrální"}[r.f.dir]||"—")+" |");});}});
+  function tc(x){return String(x||"—").replace(/\|/g,"/").replace(/\n+/g," ");}
+  function av(f){var a=avgR(f);return a===null?"—":r2(a)+(nums(f.rat).length>1?" ("+nums(f.rat).length+")":"");}
+  L.push("");L.push("## SWOT");
+  L.push("");L.push("### Fáze 1 – interní faktory");L.push("");L.push("| Kód | Faktor | Zdůvodnění | Výkon | Důležitost Ø | Matice |");L.push("|---|---|---|---|---|---|");
+  ["S","W"].forEach(function(k){D.factors[k].forEach(function(f,i){L.push("| "+code(k,i)+" | "+tc(f.text)+" | "+tc(f.why)+" | "+PERF[f.perf]+" | "+av(f)+" | "+(isKey(k,f)?"✓":"")+" |");});});
+  L.push("");L.push("### Fáze 2 – externí faktory");L.push("");L.push("| Kód | Faktor | Dopad | Atraktivita / závažnost Ø | Pravděpodobnost | Matice |");L.push("|---|---|---|---|---|---|");
+  ["O","T"].forEach(function(k){D.factors[k].forEach(function(f,i){L.push("| "+code(k,i)+" | "+tc(f.text)+" | "+tc(f.why)+" | "+av(f)+" | "+(+f.prob||0)+" % | "+(isKey(k,f)?"✓":"")+" |");});});
+  L.push("");L.push("_Stupnice 5 = nejvyšší, 1 = nejnižší. Práh vysoké hodnoty: Ø ≥ "+D.thr.imp+", pravděpodobnost ≥ "+D.thr.prob+" %._");
+  L.push("");L.push("### Fáze 3 – SWOT matice");
+  [["S","Velmi silné silné stránky"],["W","Významné slabé stránky"],["O","Hlavní příležitosti"],["T","Vážné hrozby"]].forEach(function(q){L.push("");L.push("**"+q[1]+"**");var a=keys(q[0]);if(!a.length)L.push("- —");a.forEach(function(x){L.push("- "+x.c+": "+tc(x.f.text));});});
+  var Ii=feSet(["S","W"]),Ee=feSet(["O","T"]);
+  if(Ii.rows.length&&Ee.rows.length){var ce=band(Ee.total)*3+band(Ii.total),Pp=iePost(ce);L.push("");L.push("## Hodnocení výsledku – IFE / EFE");
+    [[Ii,"IFE"],[Ee,"EFE"]].forEach(function(z){L.push("");L.push("### Matice "+z[1]);L.push("");L.push("| Kód | Faktor | Váha | Hodnocení | Vážené skóre |");L.push("|---|---|---|---|---|");
+      z[0].rows.forEach(function(x){L.push("| "+x.c+" | "+tc(x.f.text)+" | "+r2(x.w)+" | "+x.r+" | "+r2(x.s)+" |");});L.push("| **Celkem** | | 1.00 | | **"+r2(z[0].total)+"** |");});
+    L.push("");L.push("**Matice IE:** IFE "+r2(Ii.total)+", EFE "+r2(Ee.total)+" → buňka "+IEC[ce]+" – "+Pp.n+". "+Pp.d);}
+  L.push("");L.push("## Strategie");
+  ["SO","ST","WO","WT"].forEach(function(k){L.push("");L.push("### "+ST[k].name);L.push("_"+ST[k].desc+"_");
+    var a=D.strategies[k];if(!a.length)L.push("- —");
+    a.forEach(function(s,i){var ln=s.links.map(function(id){var x=find(id);return x?code(x.k,x.i):null;}).filter(Boolean);
+      L.push((i+1)+". "+(s.text||"—")+(ln.length?" ["+ln.join(", ")+"]":""));});});
+  var G=D.goals;if(G.general.trim()||G.items.length){L.push("");L.push("## Cíle a opatření");if(G.general.trim()){L.push("");L.push("**Obecný cíl:** "+G.general.trim().replace(/\n+/g," "));}
+    G.items.forEach(function(g,i){L.push("");L.push("**C"+(i+1)+":** "+(g.text||"—").replace(/\n+/g," "));if(g.ind||g.val||g.term)L.push("- Ukazatel: "+(g.ind||"—")+" · cílová hodnota: "+(g.val||"—")+" · termín: "+(g.term||"—"));if(g.tasks.trim())L.push("- Úkoly: "+g.tasks.trim().replace(/\n+/g,"; "));});
+    L.push("");L.push("**Kontrola cílů:**");CHK.forEach(function(q){L.push("- ["+(D.checks[q[0]]?"x":" ")+"] "+q[1]);});}
+  return L.join("\n");}
+function rO(){var n=Object.keys(LIB.items).length;return '<div class="card"><h2>Správa analýz</h2><p class="sub">Uloženo analýz: '+n+'. Přepínáš je v seznamu nahoře.</p><div class="row"><button class="btn" data-dup="1">Duplikovat</button><button class="btn" data-del="1" style="color:var(--T)">Smazat tuto analýzu</button></div></div><div class="card"><h2>Export reportu</h2><p class="sub">Word (.docx) – formátovaný dokument s nadpisy a tabulkami; v aplikaci Word ho uložíš i jako PDF. Tisk / PDF otevře tiskový dialog prohlížeče (Uložit jako PDF) – funguje v offline souboru.</p><div class="row" style="margin-bottom:8px"><button class="btn pri" data-dl="docx">Stáhnout Word (.docx)</button><button class="btn" data-print="1">Tisk / PDF</button></div></div><div class="card"><h2>Report (Markdown)</h2><p class="sub">Zkopíruj do Markoru, Joplinu apod.</p><div class="row" style="margin-bottom:8px"><button class="btn" data-copy="md">Kopírovat</button><button class="btn" data-dl="md">Stáhnout .md</button></div><pre id="mdout">'+esc(md())+'</pre></div>'+
+  '<div class="card"><h2>Záloha / přenos dat (JSON)</h2><p class="sub">Exportuj, ulož si do souboru; vložením zpět obnovíš analýzu.</p><div class="row" style="margin-bottom:8px"><button class="btn" data-copy="json">Kopírovat JSON</button><button class="btn" data-dl="json">Stáhnout .json</button></div>'+
+  '<textarea class="io" id="imp" placeholder="Sem vlož JSON pro import (vytvoří novou analýzu)"></textarea><div class="row" style="margin-top:8px"><button class="btn" data-imp="1">Importovat</button></div>'+
+  '<p class="note">Na claude.ai se stažení potvrzuje v dialogu; v offline souboru se stáhne rovnou.</p></div>';}
+
+/* ---------- events ---------- */
+document.getElementById("tabs").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;tab=b.dataset.t;try{history.replaceState(null,"","#"+tab);}catch(x){}render();window.scrollTo(0,0);});
+document.getElementById("title").addEventListener("input",function(e){D.title=e.target.value;save();var o=document.querySelector('#pick option[value="'+LIB.cur+'"]');if(o)o.textContent=D.title||"Bez názvu";});
+document.getElementById("helpB").addEventListener("click",function(){tab="h";try{history.replaceState(null,"","#h");}catch(x){}render();window.scrollTo(0,0);});
+document.getElementById("pick").addEventListener("change",function(e){openA(e.target.value);toast("Otevřeno: "+(D.title||"Bez názvu"));});
+document.getElementById("newA").addEventListener("click",function(){newA(null);tab="z";render();var ti=document.getElementById("title");ti.focus();ti.select();toast("Nová analýza – pojmenuj ji");});
+var M=document.getElementById("main");
+M.addEventListener("input",function(e){var t=e.target,d=t.dataset;
+  if(d.zf){if(d.zf==="topic"&&(!D.title||/^Analýza \d/.test(D.title)||D.title===D.topic)){D.title=t.value;document.getElementById("title").value=D.title;var op=document.querySelector('#pick option[value="'+LIB.cur+'"]');if(op)op.textContent=D.title||"Bez názvu";}D[d.zf]=t.value;save();}
+  else if(d.it||d.is){var ii=D.info.filter(function(z){return z.id===(d.it||d.is);})[0];if(ii){if(d.it)ii.text=t.value;else ii.src=t.value;save();}}
+  else if(d.goal){D.goal=t.value;save();}
+  else if(d.fwhy){var xw=find(d.fwhy);if(xw){xw.f.why=t.value;save();}}
+  else if(d.frat){var xr=find(d.frat);if(xr){xr.f.rat=t.value;save();var av=document.getElementById("avg-"+xr.f.id);if(av)av.innerHTML=avgTxt(xr.f);}}
+  else if(d.fprob){var xq=find(d.fprob);if(xq){xq.f.prob=Math.max(0,Math.min(100,+t.value||0));save();}}
+  else if(d.gg){D.goals.general=t.value;save();}
+  else if(d.gi){var gp=d.gi.split("|"),gi=D.goals.items.filter(function(z){return z.id===gp[0];})[0];if(gi){gi[gp[1]]=t.value;save();}}
+  else if(d.ft){var x=find(d.ft);if(x){x.f.text=t.value;save();}}
+  else if(d.pt){var y=pfind(d.pt);if(y){y.f.text=t.value;save();}}
+  else if(d.st){var p=d.st.split("|"),s=D.strategies[p[0]].filter(function(z){return z.id===p[1];})[0];if(s){s.text=t.value;save();}}});
+M.addEventListener("change",function(e){var d=e.target.dataset,v=e.target.value,y;
+  if(d.fperf||d.frat||d.fprob||d.thr||d.fresp){if(d.fperf){var xf=find(d.fperf);if(xf)xf.f.perf=+v;}if(d.fresp){var xe=find(d.fresp);if(xe)xe.f.resp=+v;}if(d.thr){D.thr[d.thr]=+v||(d.thr==="imp"?3:0);}save();var sy4=window.scrollY;render();window.scrollTo(0,sy4);return;}
+  if(d.chk){D.checks[d.chk]=e.target.checked;save();return;}
+  if(d.ichk){var ic=D.info.filter(function(z){return z.id===d.ichk;})[0];if(ic){ic.done=e.target.checked;save();var sy0=window.scrollY;render();window.scrollTo(0,sy0);}return;}
+  if(d.pi||d.pp||d.pd){y=pfind(d.pi||d.pp||d.pd);if(!y)return;if(d.pi)y.f.imp=+v;else if(d.pp)y.f.prob=+v;else y.f.dir=v;save();var sy=window.scrollY;render();window.scrollTo(0,sy);return;}if(d.fw){var x=find(d.fw);if(x){x.f.w=+e.target.value;save();var se=document.getElementById("sum-"+x.k);if(se)se.innerHTML=sumHtml(x.k);}}});
+M.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var d=b.dataset;
+  if(d.env){D.env=d.env;save();render();return;}
+  if(d.fkey){var xk=find(d.fkey);if(xk){var f0=xk.f;f0.key=(f0.key===null||f0.key===undefined)?!autoKey(xk.k,f0):(f0.key===!autoKey(xk.k,f0)?null:null);
+      save();var sy5=window.scrollY;render();window.scrollTo(0,sy5);}return;}
+  if(d.gadd){D.goals.items.push({id:uid(),text:"",ind:"",val:"",term:"",tasks:""});save();var sy6=window.scrollY;render();window.scrollTo(0,sy6);return;}
+  if(d.gdel){var gd=d.gdel;ask("Smazat specifický cíl?",function(){D.goals.items=D.goals.items.filter(function(z){return z.id!==gd;});save();render();});return;}
+  if(d.iadd||d.isug){var ni={id:uid(),text:d.isug||"",src:"",done:false};D.info.push(ni);save();var sy1=window.scrollY;render();window.scrollTo(0,sy1);if(!d.isug){var ie=M.querySelector('[data-it="'+ni.id+'"]');if(ie)ie.focus();}return;}
+  if(d.idel){D.info=D.info.filter(function(z){return z.id!==d.idel;});save();render();return;}
+  if(d.goto){tab=d.goto;render();window.scrollTo(0,0);return;}
+  if(d.padd){var nf={id:uid(),text:"",imp:3,prob:3,dir:"",lnk:null};D.pestle[d.padd].push(nf);save();render();var pe=M.querySelector('[data-pt="'+nf.id+'"]');if(pe)pe.focus();return;}
+  if(d.pdel){var y=pfind(d.pdel);if(!y)return;ask("Smazat vliv "+pcode(y.k,y.i)+"? (Faktor ve SWOT zůstane.)",function(){D.pestle[y.k].splice(y.i,1);save();render();});return;}
+  if(d.pto){var y2=pfind(d.pto);if(y2&&toSwot(y2.f)){save();var sy=window.scrollY;render();window.scrollTo(0,sy);toast("Přeneseno do SWOT");}return;}
+  if(d.pall){var n=0;PKm().forEach(function(k){D.pestle[k].forEach(function(f){if(toSwot(f))n++;});});save();render();toast(n?"Přeneseno/aktualizováno: "+n:"Nejdřív u vlivů zvol O nebo T");return;}
+  if(d.fadd){D.factors[d.fadd].push(newF(d.fadd));save();render();var ts=M.querySelectorAll('[data-ft]');var last=D.factors[d.fadd][D.factors[d.fadd].length-1];var el=M.querySelector('[data-ft="'+last.id+'"]');if(el)el.focus();}
+  else if(d.fdel){var x=find(d.fdel);if(!x)return;var go=function(){D.factors[x.k].splice(x.i,1);for(var key in D.scores)if(key.indexOf(d.fdel)>=0)delete D.scores[key];
+      ALLK.forEach(function(pk){D.pestle[pk].forEach(function(pf){if(pf.lnk===d.fdel)pf.lnk=null;});});for(var q in D.strategies)D.strategies[q].forEach(function(s){s.links=s.links.filter(function(l){return l!==d.fdel;});});save();render();};
+    if(x.f.text.trim())ask("Smazat faktor "+code(x.k,x.i)+"?",go);else go();}
+  else if(d.cell){var v=(+D.scores[d.cell]||0);v=(v+1)%4;if(v)D.scores[d.cell]=v;else delete D.scores[d.cell];save();var y=window.scrollY,tw=M.querySelector(".tablewrap"),sx=tw?tw.scrollLeft:0;render();var tw2=M.querySelector(".tablewrap");if(tw2)tw2.scrollLeft=sx;window.scrollTo(0,y);}
+  else if(d.sadd){var s={id:uid(),text:"",links:[]};D.strategies[d.sadd].push(s);save();render();var el2=M.querySelector('[data-st="'+d.sadd+'|'+s.id+'"]');if(el2)el2.focus();}
+  else if(d.sdel){var p=d.sdel.split("|");var go2=function(){D.strategies[p[0]]=D.strategies[p[0]].filter(function(z){return z.id!==p[1];});save();render();};ask("Smazat strategii?",go2);}
+  else if(d.link){var q=d.link.split("|"),st=D.strategies[q[0]].filter(function(z){return z.id===q[1];})[0];if(!st)return;var i=st.links.indexOf(q[2]);if(i>=0)st.links.splice(i,1);else st.links.push(q[2]);save();var y2=window.scrollY;render();window.scrollTo(0,y2);}
+  else if(d.copy){var txt=d.copy==="md"?md():JSON.stringify(D,null,1);
+    try{navigator.clipboard.writeText(txt).then(function(){toast("Zkopírováno");},function(){fallback(txt);});}catch(err){fallback(txt);}}
+  else if(d.dl){var nm=(D.title||"swot-tows").replace(/[^\w\-]+/g,"_");
+    if(d.dl==="md")dl(nm+".md",md(),"text/markdown");else if(d.dl==="docx")dl(nm+".docx",docx(),"application/vnd.openxmlformats-officedocument.wordprocessingml.document");else dl(nm+".json",JSON.stringify(D,null,1),"application/json");}
+  else if(d.print){var pv=document.getElementById("printv");pv.innerHTML=mdHtml()+'<p style="margin-top:30px;font-size:9pt;color:#888;text-align:center">Created by L0cksm1thV · 2026</p>';try{window.print();}catch(err){toast("Tisk není v tomto zobrazení dostupný – použij offline soubor nebo Word");}}
+  else if(d.imp){var v2=document.getElementById("imp").value.trim();if(!v2)return;try{var p2=JSON.parse(v2);if(!p2||!p2.factors)throw 0;newA(fix(p2),(p2.title||"Import")+(Object.keys(LIB.items).some(function(id){return LIB.items[id].title===p2.title;})?" (import)":""));document.getElementById("imp").value="";toast("Importováno jako nová analýza");}catch(err){toast("Neplatný JSON");}}
+  else if(d.dup){newA(D,(D.title||"Analýza")+" – kopie");toast("Duplikováno");}
+  else if(d.del){ask("Smazat analýzu „"+(D.title||"Bez názvu")+"“? Nelze vrátit (nejdřív si ji případně exportuj).",function(){delete LIB.items[LIB.cur];var ids=Object.keys(LIB.items);
+    if(!ids.length){newA(null);}else{ids.sort(function(a,b){return (LIB.items[b].updated||0)-(LIB.items[a].updated||0);});LIB.cur=ids[0];D=fix(LIB.items[ids[0]]);try{localStorage.setItem(LKEY,JSON.stringify(LIB));}catch(e){}renderPick();render();}toast("Smazáno");});}
+});
+function fallback(t){var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("Zkopírováno");}catch(e){toast("Kopírování selhalo – označ text ručně");}ta.remove();}
+var DLNS=null;try{if(window.claude&&typeof window.claude.use==="function")window.claude.use("downloads").then(function(x){DLNS=x;},function(){});}catch(e){}
+function dl(n,t,m){if(DLNS){DLNS.save({filename:n,data:t}).then(function(){toast("Uloženo: "+n);},function(e){if(!e||e.code!=="declined")toast("Stažení se nepodařilo");});return;}
+  try{var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:m}));a.download=n;document.body.appendChild(a);a.click();setTimeout(function(){a.remove();},500);toast("Stahuji "+n);}catch(e){toast("Stažení není dostupné – použij Kopírovat");}}
+/* ---------- md → bloky → DOCX / HTML ---------- */
+function blocks(){var out=[],L=md().split("\n"),i=0;
+  while(i<L.length){var l=L[i];
+    if(/^\|/.test(l)){var rows=[];while(i<L.length&&/^\|/.test(L[i])){if(!/^\|[\s\-|]+\|$/.test(L[i]))rows.push(L[i].replace(/^\||\|$/g,"").split("|").map(function(c){return c.trim();}));i++;}out.push({t:"tbl",rows:rows});continue;}
+    if(!l.trim()){i++;continue;}
+    var m;
+    if(m=l.match(/^(#{1,3}) (.*)/))out.push({t:"h"+m[1].length,x:m[2]});
+    else if(m=l.match(/^- \[(x| )\] (.*)/))out.push({t:"li",x:(m[1]==="x"?"☑ ":"☐ ")+m[2]});
+    else if(m=l.match(/^- (.*)/))out.push({t:"li",x:"• "+m[1]});
+    else if(m=l.match(/^(\d+)\. (.*)/))out.push({t:"li",x:m[1]+". "+m[2]});
+    else out.push({t:"p",x:l});
+    i++;}
+  return out;}
+function runs(x){return String(x).split(/(\*\*[^*]+\*\*|(?:^|\b)_[^_]+_(?:\b|$))/).filter(Boolean).map(function(p){
+  if(/^\*\*.*\*\*$/.test(p))return{b:1,t:p.slice(2,-2)};if(/^_.*_$/.test(p))return{i:1,t:p.slice(1,-1)};return{t:p};});}
+function xe(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function wr(x,bold){return runs(x).map(function(r){return '<w:r><w:rPr>'+((r.b||bold)?'<w:b/>':'')+(r.i?'<w:i/>':'')+'</w:rPr><w:t xml:space="preserve">'+xe(r.t)+'</w:t></w:r>';}).join("");}
+function wp(x,st,ind){return '<w:p><w:pPr>'+(st?'<w:pStyle w:val="'+st+'"/>':'')+(ind?'<w:ind w:left="360" w:hanging="0"/><w:spacing w:after="40"/>':'')+'</w:pPr>'+wr(x)+'</w:p>';}
+function docBody(){var b="";blocks().forEach(function(k){
+  if(k.t==="h1")b+=wp(k.x,"Title");else if(k.t==="h2")b+=wp(k.x,"Heading1");else if(k.t==="h3")b+=wp(k.x,"Heading2");
+  else if(k.t==="li")b+=wp(k.x,null,1);else if(k.t==="p")b+=wp(k.x);
+  else if(k.t==="tbl"){var n=k.rows[0]?k.rows[0].length:1;b+='<w:tbl><w:tblPr><w:tblStyle w:val="TableGrid"/><w:tblW w:w="5000" w:type="pct"/><w:tblBorders>'+["top","left","bottom","right","insideH","insideV"].map(function(e){return '<w:'+e+' w:val="single" w:sz="4" w:space="0" w:color="BFBFBF"/>';}).join("")+'</w:tblBorders><w:tblCellMar><w:left w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>'+Array(n+1).join('<w:gridCol/>')+'</w:tblGrid>';
+    k.rows.forEach(function(row,ri){b+='<w:tr>'+(ri===0?'<w:trPr><w:tblHeader/></w:trPr>':'');row.forEach(function(c){b+='<w:tc><w:tcPr>'+(ri===0?'<w:shd w:val="clear" w:color="auto" w:fill="E7EEEA"/>':'')+'</w:tcPr><w:p><w:pPr><w:spacing w:after="0"/></w:pPr>'+wr(c||" ",ri===0)+'</w:p></w:tc>';});b+='</w:tr>';});
+    b+='</w:tbl>'+wp("");}});
+  b+='<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="400"/></w:pPr><w:r><w:rPr><w:color w:val="999999"/><w:sz w:val="16"/></w:rPr><w:t>Created by L0cksm1thV · 2026</w:t></w:r></w:p>';
+  return b;}
+function docx(){var W='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';
+  var doc='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document '+W+'><w:body>'+docBody()+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr></w:body></w:document>';
+  var sty='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles '+W+'><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri" w:eastAsia="Calibri"/><w:sz w:val="21"/><w:szCs w:val="21"/><w:lang w:val="cs-CZ"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>'+
+    '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>'+
+    '<w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:after="200"/></w:pPr><w:rPr><w:b/><w:color w:val="2F5D50"/><w:sz w:val="40"/></w:rPr></w:style>'+
+    '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:pPr><w:keepNext/><w:spacing w:before="360" w:after="120"/><w:pBdr><w:bottom w:val="single" w:sz="6" w:space="2" w:color="2F5D50"/></w:pBdr><w:outlineLvl w:val="0"/></w:pPr><w:rPr><w:b/><w:color w:val="2F5D50"/><w:sz w:val="30"/></w:rPr></w:style>'+
+    '<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:pPr><w:keepNext/><w:spacing w:before="240" w:after="80"/><w:outlineLvl w:val="1"/></w:pPr><w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style>'+
+    '<w:style w:type="table" w:styleId="TableGrid"><w:name w:val="Table Grid"/></w:style></w:styles>';
+  var F=[["[Content_Types].xml",'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>'],
+    ["_rels/.rels",'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'],
+    ["word/_rels/document.xml.rels",'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'],
+    ["word/document.xml",doc],["word/styles.xml",sty]];
+  return zip(F);}
+var CRCT=(function(){var t=[];for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+function crc(b){var c=0xFFFFFFFF;for(var i=0;i<b.length;i++)c=CRCT[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function zip(files){var enc=new TextEncoder(),parts=[],cen=[],off=0;
+  function u16(v){return [v&255,(v>>>8)&255];}function u32(v){return [v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255];}
+  files.forEach(function(f){var nm=enc.encode(f[0]),dt=enc.encode(f[1]),c=crc(dt);
+    var lh=[].concat(u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(0),u16(0x21),u32(c),u32(dt.length),u32(dt.length),u16(nm.length),u16(0));
+    parts.push(new Uint8Array(lh),nm,dt);
+    cen.push(new Uint8Array([].concat(u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(0),u16(0x21),u32(c),u32(dt.length),u32(dt.length),u16(nm.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(off))),nm);
+    off+=lh.length+nm.length+dt.length;});
+  var cs=0;cen.forEach(function(x){cs+=x.length;});
+  var end=new Uint8Array([].concat(u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(cs),u32(off),u16(0)));
+  var all=parts.concat(cen,[end]),len=0;all.forEach(function(x){len+=x.length;});var out=new Uint8Array(len),p=0;all.forEach(function(x){out.set(x,p);p+=x.length;});return out;}
+function mdHtml(){var h="";function hr(x){return runs(x).map(function(r){var t=esc(r.t);return r.b?'<b>'+t+'</b>':r.i?'<i>'+t+'</i>':t;}).join("");}
+  blocks().forEach(function(k){if(k.t==="h1")h+='<h1>'+hr(k.x)+'</h1>';else if(k.t==="h2")h+='<h2>'+hr(k.x)+'</h2>';else if(k.t==="h3")h+='<h3>'+hr(k.x)+'</h3>';
+    else if(k.t==="li")h+='<p class="li">'+hr(k.x)+'</p>';else if(k.t==="p")h+='<p>'+hr(k.x)+'</p>';
+    else if(k.t==="tbl"){h+='<table>';k.rows.forEach(function(r,i){h+='<tr>'+r.map(function(c){return (i?'<td>':'<th>')+hr(c)+(i?'</td>':'</th>');}).join("")+'</tr>';});h+='</table>';}});return h;}
+render();
+})();
+</script>
+</body>
+</html>
